@@ -30,6 +30,18 @@ $ chmod +x config_iot.sh
 $ ./config_iot.sh
 ```
 
+## Content
+
+- [Lab 0 - Initial setup](#intial-setup)
+- [Lab 1 - CDSW : Train the Model](#train-the-model)
+- [Lab 2- CDSW : Deploy the Model](#deploy-the-model)
+- [Lab 3 - Gateway host: setup machine sensors simulator and MQTT broker](#setup-machine-sensors-simulator-and-mqtt-broker)
+- [Lab 4 - Gateway host: configure and run MiNiFi](#configure-and-run-minifi)
+- [Lab 5 - Configuring Edge Flow Management](#configuring-edge-flow-management)
+- [Lab 6 - Configuring the NiFi flow and push to Kafka](#configuring-the-nifi-flow-and-push-to-kafka)
+- [Lab 7 - Use Spark to call the model endpoint and save to Kudu](#use-spark-to-call-the-model-endpoint-and-save-to-kudu)
+- [Lab 8 - Fast analytics on fast data with Kudu and Impala](#fast-analytics-on-fast-data-with-kudu-and-impala)
+
 ## Lab 0 - Initial setup
 
 1. Create a CDH+CDSW cluster following [these instructions](https://github.com/fabiog1901/OneNodeCDHCluster) and **PLEASE NOTE** that due to a minor MiNiFi bug, you must comment out line `service minifi start` in `setup.sh`before running `setup.sh`. You will be prompted to explicitly start MiNiFi in Lab 5. 
