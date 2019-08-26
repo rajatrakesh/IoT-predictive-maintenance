@@ -42,7 +42,7 @@ $ ./config_iot.sh
 - [Lab 7 - Use Spark to call the model endpoint and save to Kudu](#use-spark-to-call-the-model-endpoint-and-save-to-kudu)
 - [Lab 8 - Fast analytics on fast data with Kudu and Impala](#fast-analytics-on-fast-data-with-kudu-and-impala)
 
-## Lab 0 - Initial setup
+## Initial setup
 
 1. Create a CDH+CDSW cluster following [these instructions](https://github.com/fabiog1901/OneNodeCDHCluster) and **PLEASE NOTE** that due to a minor MiNiFi bug, you must comment out line `service minifi start` in `setup.sh`before running `setup.sh`. You will be prompted to explicitly start MiNiFi in Lab 5. 
 Check the **Troubleshooting** at the end of this document for how to reset MiNiFi in case you forgot to do this step.
@@ -65,7 +65,7 @@ Below a screenshot of Chrome open with 6 tabs, one for each service.
 
 ![](./images/image10.png)
 
-## Lab 1 - CDSW: Train the model
+## Train the model
 
 In this and the following lab, you will wear the hat of a Data Scientist. You will write the model code, train it several times and finally deploy the model to Production. All within 30 minutes!
 
@@ -185,7 +185,7 @@ Select the run number with the best predictive value, in this case, experiment 2
 ![](./images/image13.png)
 ![](./images/image1.png)
 
-## Lab 2 - CDSW: Deploy the model
+## Deploy the model
 
 **STEP 1** : Examine the program `cdsw.iot_model.py`
 
@@ -238,7 +238,7 @@ Now, lets change the input parameters and call the predict function again. Put t
 With these input parameters, the model returns 0, which means that the machine is likely to break. Take a note of the **AccessKey** as you will need this for lab 6.
 
 
-## Lab 3 - Gateway host: setup machine sensors simulator and MQTT broker
+## Setup machine sensors simulator and MQTT broker
 
 In this lab you will run a simple Python script that simulates IoT sensor data from some hypotetical machines, and send the data to a MQTT broker, [mosquitto](https://mosquitto.org/). The gateway host is connnected to many and different type of sensors, but they generally all share the same trasport protocol, mqtt.
 
@@ -263,7 +263,7 @@ iot: {"sensor_id": 70, "sensor_ts": 1556758807751841, "sensor_0": 2, "sensor_1":
 You can stop the simulator now, with Ctrl+C.
 
 
-## Lab 4 - Gateway host: configure and run MiNiFi
+## Configure and run MiNiFi
 
 MiNiFi is installed in the gateway host. In this lab you will configure and run MiNiFi to read from the mosquitto broker and forward to the NiFi cluster, but it's only in the next lab that you will provide the flow to execute.
 
@@ -280,7 +280,7 @@ You might want to check the logs to confirm all is good:
 $ cat /opt/cloudera/cem/minifi/logs/minifi-app.log
 ```
 
-## Lab 5 - Configuring Edge Flow Management
+## Configuring Edge Flow Management
 
 Cloudera Edge Flow Management gives you a visual overview of all MiNiFi agents in your environment, and allows you to update the flow configuration for each one, with versioning control thanks to the **NiFi Registry** integration. In this lab, you will create the MiNiFi flow and publish it for the MiNiFi agent to pick it up.
 
@@ -342,7 +342,7 @@ $ python mqtt.iot_simulator.py mqtt.iot.config
 ![](./images/image29.png)
 
 
-## Lab 6 - Configuring the NiFi flow and push to Kafka
+## Configuring the NiFi flow and push to Kafka
 
 In this lab, you will create a NiFi flow to receive the data from all gateways and push it to **Kafka**. 
 
@@ -360,7 +360,7 @@ Connect the Input Port to the PublishKafka processor by dragging the destination
 
 You can add more processors as needed to process, split, duplicate or re-route your FlowFiles to all other destinations and processors.
 
-## Lab 7 - Use Spark to call the model endpoint and save to Kudu 
+## Use Spark to call the model endpoint and save to Kudu 
 
 Spark Streaming is a processing framework for (near) real-time data. In this lab, you will use Spark to consume Kafka messages which contains the IoT data from the machine, and call the model API endpoint to predict whether, with those IoT values the machine sent, the machine is likely to break. Then save the results to Kudu for fast analytics.
 
@@ -415,7 +415,7 @@ Spark Streaming will flood your screen with log messages, however, at a 5 second
 ![](./images/image20.png)
 
 
-## Lab 8 - Fast analytics on fast data with Kudu and Impala
+## Fast analytics on fast data with Kudu and Impala
 
 In this lab, you will run some SQL queries using the Impala engine. You can run a report to inform you which machines are likely to break in the near future.
 
