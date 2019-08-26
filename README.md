@@ -1,13 +1,14 @@
-# IoT Predictive Maintenance Workshop
+# EDGE2AI Workshop
 
-## Intro
+## Introduction
 
-In this workshop, you will build a full OT to IT workflow. 
+In this workshop, you will build a full OT to IT workflow for an **IoT Predictive Maintenance** use case. Below is the architecture diagram, showing all the components you will setup over the next 8 lab exercises. While the diagram divides the components according to their location (factory, regional or datacenter level) in this workshop all such components will reside in one single host.
 
-![](./images/iot_diagram_1.png)
+![](./images/iot.jpg)
 
 Labs summary:
 
+0. Setup the sandbox environment.
 1. On the **CDSW** cluster, train your model with the **Experiment** feature.
 2. On the **CDSW** cluster, deploy the model into production with the **Model** feature.
 3. On the Gateway host, run a simulator to send IoT sensors data to the MQTT broker.
@@ -16,23 +17,30 @@ Labs summary:
 6. On the CDH cluster, process each record using **Spark Streaming**, calling the **Model endpoint** and save results to **Kudu**.
 7. On the CDH cluster, pull reports on upcoming predicted machine failures using **Impala** and **Hue**.
 
+### Pre-requisites
+
+- Laptop with a supported OS (Windows 7 not supported).
+- Ability to SSH into remote hosts from Windows or Mac. For Windows machines, install Putty or even better [install OpenSSH for PowerShell](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse).
+- A modern browser like Google Chrome (IE not supported).
+
 ## Lab 0 - Initial setup
 
-1. Create a CDH+CDSW cluster following [these instructions](https://github.com/fabiog1901/OneNodeCDHCluster) and **PLEASE NOTE** that due to a minor MiNiFi bug, you must comment out line `systemctl start minifi` in `setup.sh`, [here](https://github.com/fabiog1901/OneNodeCDHCluster/blob/master/setup.sh#L166), before running `setup.sh`. You will be prompted to explicitly start MiNiFi in Lab 5. 
-Check the Troubleshooting at the end of this document for how to reset MiNiFi in case you forgot to do this stop.
+1. Create a CDH+CDSW cluster following [these instructions](https://github.com/fabiog1901/OneNodeCDHCluster) and **PLEASE NOTE** that due to a minor MiNiFi bug, you must comment out line `service minifi start` in `setup.sh`before running `setup.sh`. You will be prompted to explicitly start MiNiFi in Lab 5. 
+Check the **Troubleshooting** at the end of this document for how to reset MiNiFi in case you forgot to do this step.
 
-2. Ensure you can SSH into the cluster, and that traffic from the cluster is only allowed from your own IP/VPN for security reasons.
-3. Login into Cloudera Manager with username/password `admin/admin`, and familiarize youself with the services installed. The URLs to access the other services are:
-  - Cloudera Manager: http://public-hostname:7180
-  - Cloudera Edge Flow Management: http://public-hostname:10080/efm/ui
-  - NiFi: http://public-hostname:8080/nifi/
-  - NiFi Registry: http://public-hostname:18080/nifi-registry
-  - Hue: http://public-hostname:8888
-  - CDSW: http://cdsw.PUBLIC-IP.nip.io   
+2. Ensure you can SSH into the cluster, and that traffic from the cluster is only allowed from your own IP/VPN for security reasons. Ports used by this workshop are 7180, 80, 8080, 18080, 10080, 8888, 50999.
+
+3. Login into Cloudera Manager with username/password `admin/admin`, and familiarize yourself with the services installed. The Ports to access the other services are:
+  - Cloudera Manager:  7180
+  - Edge Flow Manager: 10080/efm/ui
+  - NiFi:              8080/nifi/
+  - NiFi Registry:     18080/nifi-registry
+  - Hue:               8888
+  - CDSW:              cdsw.<vm-public-IP\>.nip.io   
 
 Login into **Hue**. As you are the first user to login into Hue, you are granted admin privileges. At this point, you won't need to do anything on Hue, but by logging in, CDH has created your HDFS user and folder, which you will need for the next lab. 
 
-Ensure you remember the username and password, as you will use these throughout this workshop.
+Ensure you remember the username and password, as you will use these throughout this workshop. 
 
 Below a screenshot of Chrome open with 6 tabs, one for each service.
 
@@ -44,7 +52,7 @@ In this and the following lab, you will wear the hat of a Data Scientist. You wi
 
 **STEP 0** : Configure CDSW
 
-Open CDSW Web UI and click on *sign up for a new account*. As you're the first user to login into CDSW, you are granted admin privileges.
+Open CDSW Web UI and click on *sign up for a new account*. As you're the first user to login into CDSW, you are granted admin privileges. Make sure you use the same username you used when you logged into HUE, in Lab 0. The usernames here must match.
 
 ![](./images/image2.png)
 
@@ -57,6 +65,7 @@ Navigate to the CDSW **Admin** page to fine tune the environment:
 
 ![](./images/image16.png)
 
+Please note: this env variable is not required for a CDH 5 cluster.
 
 **STEP 1** : Create the project
 
@@ -73,7 +82,7 @@ Once the Engine is ready, run the following command to install some required lib
 ```
 !pip3 install --upgrade pip scikit-learn
 ```
-The project comes with an historical dataset. Copy this dataset into HDFS:
+The project comes with a historical dataset. Copy this dataset into HDFS:
 ```
 !hdfs dfs -put data/historical_iot.txt /user/$HADOOP_USER_NAME
 ```
@@ -195,9 +204,9 @@ If all parameters are set, you can hit the **Deploy Model** button. Wait till th
 
 **STEP 3** : Test the deployed model
 
-After the several minutes, your model should get to the **Deployed** state. Now, click on the Model Name link, to go to the Model Overview page. From the that page, hit the **Test** button to check if the model is working.
+After several minutes, your model should get to the **Deployed** state. Now, click on the Model Name link, to go to the Model Overview page. From the that page, hit the **Test** button to check if the model is working.
 
-The green color with success is telling that our REST call to the model is technically working. And if you examine the response: `{“result”: 1}`, it returns a 1, which mean that machine with these features is likely to stay healthy.
+The green color with success is telling that our REST call to the model is technically working. And if you examine the response: `{"result": 1}`, it returns a 1, which mean that machine with these features is likely to stay healthy.
 
 ![](./images/image11.png)
 
@@ -207,7 +216,7 @@ Now, lets change the input parameters and call the predict function again. Put t
   "feature": "0, 95, 0, 88, 26.62, 75, 21.05, 115, 8.65, 5, 3.32, 3"
 }
 ```
-With these input parameters, the model returns 0, which mean that the machine is likely to break. Take a note of the **AccessKey** as you will need this for lab 6.
+With these input parameters, the model returns 0, which means that the machine is likely to break. Take a note of the **AccessKey** as you will need this for lab 6.
 
 
 ## Lab 3 - Gateway host: setup machine sensors simulator and MQTT broker
@@ -392,6 +401,8 @@ $ rm -rf ~/.m2 ~/.ivy2/
 $ spark-submit --master local[2] --jars kudu-spark2_2.11-1.9.0.jar,spark-core_2.11-1.5.2.logging.jar --packages org.apache.spark:spark-streaming-kafka_2.11:1.6.3 spark.iot.py
 ```
 
+Please note: you might have to use `spark2-submit` if you're running this demo out of a CDH 5 cluster.
+
 Spark Streaming will flood your screen with log messages, however, at a 5 seconds interval, you should be able to spot a table: these are the messages that were consumed from Kafka and processed by Spark. YOu can configure Spark for a smaller time window, however, for this exercise 5 seconds is sufficient.
 
 ![](./images/image20.png)
@@ -421,26 +432,25 @@ Run a few times a SQL statement to count all rows in the table to confirm the la
 </details>
 
 ## Troubleshooting
-<details>
-    <summary>CEM doesn't pick up new NARs</summary>
 
-  Delete the agent manifest manually using the EFM API:
+### CEM doesn't pick up new NARs</summary>
+1. Stop Minifi.
+2. Delete the agent manifest manually using the EFM API:
+    Verify each class has the same agent manifest ID:
+    ```
+    http://hostname:10080/efm/api/agent-classes
+    [{"name":"iot1","agentManifests":["agent-manifest-id"]},{"name":"iot4","agentManifests":["agent-manifest-id"]}]
+    ```
 
-  Verify each class has the same agent manifest ID:
-  ```
-  http://hostname:10080/efm/api/agent-classes
-  [{"name":"iot1","agentManifests":["agent-manifest-id"]},{"name":"iot4","agentManifests":["agent-manifest-id"]}]
-  ```
+    Confirm the manifest doesn't have the NAR you installed
+    ```
+    http://hostname:10080/efm/api/agent-manifests?class=iot4
+    [{"identifier":"agent-manifest-id","agentType":"minifi-java","version":"1","buildInfo":{"timestamp":1556628651811,"compiler":"JDK 8"},"bundles":[{"group":"default","artifact":"system","version":"unversioned","componentManifest":{"controllerServices":[],"processors":
+    ```
 
-  Confirm the manifest doesn't have the NAR you installed
-  ```
-  http://hostname:10080/efm/api/agent-manifests?class=iot4
-  [{"identifier":"agent-manifest-id","agentType":"minifi-java","version":"1","buildInfo":{"timestamp":1556628651811,"compiler":"JDK 8"},"bundles":[{"group":"default","artifact":"system","version":"unversioned","componentManifest":{"controllerServices":[],"processors":
-  ```
-
-  Call the API
-  ```
-  http://hostname:10080/efm/swagger/ 
-  ```
-  Hit the `DELETE - Delete the agent manifest specified by id` button, and in the id field, enter `agent-manifest-id`
-</details>
+    Call the API
+    ```
+    http://hostname:10080/efm/swagger/ 
+    ```
+    Hit the `DELETE - Delete the agent manifest specified by id` button, and in the id field, enter `agent-manifest-id`
+3. Restart Minifi
