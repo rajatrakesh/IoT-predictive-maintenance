@@ -22,6 +22,13 @@ Labs summary:
 - Laptop with a supported OS (Windows 7 not supported).
 - Ability to SSH into remote hosts from Windows or Mac. For Windows machines, install Putty or even better [install OpenSSH for PowerShell](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse).
 - A modern browser like Google Chrome (IE not supported).
+- Download the pre-requisites and lab files
+
+```
+$ wget https://raw.githubusercontent.com/rajatrakesh/IoT-predictive-maintenance/master/scripts/config_iot.sh
+$ chmod +x config_iot.sh
+$ ./config_iot.sh
+```
 
 ## Lab 0 - Initial setup
 
@@ -223,20 +230,14 @@ With these input parameters, the model returns 0, which means that the machine i
 
 In this lab you will run a simple Python script that simulates IoT sensor data from some hypotetical machines, and send the data to a MQTT broker, [mosquitto](https://mosquitto.org/). The gateway host is connnected to many and different type of sensors, but they generally all share the same trasport protocol, mqtt.
 
-SSH into the VM, then install required libs and start the mosquitto broker
+SSH into the VM, then install required libs and start the mosquitto broker. This will also clone the repo.
 ```
-$ sudo su -
-$ yum install -y mosquitto
-$ pip install paho-mqtt
-$ systemctl enable mosquitto
-$ systemctl start mosquitto
+$ ./install_mqtt.sh
 ```
 
-Now clone this repo, then run the simulator to send sensor data to mosquitto.
+Now run the simulator to send sensor data to mosquitto.
 ```
-$ git clone https://github.com/fabiog1901/IoT-predictive-maintenance.git
-$ mv IoT-predictive-maintenance/mqtt.* ~
-$ python mqtt.iot_simulator.py mqtt.iot.config
+$ ./start_mqtt.sh
 ```
 
 You should see an output similar to the below:
@@ -425,9 +426,9 @@ Run a few times a SQL statement to count all rows in the table to confirm the la
 ## Appendix
 <details>
   <summary>Resources</summary>
-  
+
   [Original blog by Abdelkrim Hadjidj](https://medium.freecodecamp.org/building-an-iiot-system-using-apache-nifi-mqtt-and-raspberry-pi-ce1d6ed565bc)
-  
+
   [Cloudera Documentation](https://www.cloudera.com/documentation.html)
 </details>
 
