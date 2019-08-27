@@ -25,6 +25,7 @@ Labs summary:
 - Download the pre-requisites and lab files
 
 ```
+$ sudo su -
 $ wget https://raw.githubusercontent.com/rajatrakesh/IoT-predictive-maintenance/master/scripts/config_iot.sh
 $ chmod +x config_iot.sh
 $ ./config_iot.sh

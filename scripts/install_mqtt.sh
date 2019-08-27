@@ -1,5 +1,4 @@
 #!/bin/bash
-sudo su -
 yum install -y mosquitto
 pip install paho-mqtt
 systemctl enable mosquitto
